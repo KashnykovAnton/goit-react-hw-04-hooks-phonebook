@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Section from './components/Section';
 import ContactList from './components/ContactList';
 import ContactForm from './components/ContactForm';
@@ -33,36 +33,31 @@ export default function App() {
     setContacts([...contacts, item]);
   };
 
-  // const changeFilter = e => {
-  //   setFilter(e.target.value);
-  // };
+  const changeFilter = useCallback(e => {
+    setFilter(e.target.value);
+  }, []);
 
-  const getFilteredContacts = () => {
+  const filteredContacts = useMemo(() => {
     const normalizedFilter = filter.toLowerCase();
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter),
     );
-  };
+  }, [filter, contacts]);
 
-  // const deleteContact = id => {
+  // const deleteContact = useMemo(id => {
   //   setContacts(contacts.filter(el => el.id !== id));
-  // };
+  // }, [setContacts, contacts]);
 
-  const filteredContacts = getFilteredContacts();
   return (
     <div>
       <Section title="Phonebook">
         <ContactForm onSubmit={formSubmitHandler} />
       </Section>
       <Section title="Contacts">
-        <Filter
-          value={filter}
-          onChange={e => {
-            setFilter(e.target.value);
-          }}
-        />
+        <Filter value={filter} onChange={changeFilter} />
         <ContactList
           list={filteredContacts}
+          // onDeleteContact={deleteContact}
           onDeleteContact={id => {
             setContacts(contacts.filter(el => el.id !== id));
           }}
