@@ -1,11 +1,64 @@
 import './App.css';
+import { useState, useEffect } from 'react';
+import Section from './components/Section';
+import ContactList from './components/ContactList';
+import ContactForm from './components/ContactForm';
+import Filter from './components/Filter';
 
-function App() {
+export default function App() {
+  let arr = [
+    { id: 'id-1', name: 'Rosie Simpson', number: 4591256 },
+    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+  ];
+  const [contacts, setContacts] = useState(
+    () => JSON.parse(localStorage.getItem('contacts')) ?? arr,
+  );
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const formSubmitHandler = item => {
+    const normalizedName = item.name.toLowerCase();
+    contacts.find(el => {
+      return el.name.toLowerCase() === normalizedName;
+    })
+      ? alert(`${item.name} is already in contacts`)
+      : changeContacts(item);
+  };
+
+  const changeContacts = item => {
+    setContacts([...contacts, item]);
+  };
+
+  const changeFilter = e => {
+    setFilter(e.target.value);
+  };
+
+  const getFilteredContacts = () => {
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter),
+    );
+  };
+
+  const deleteContact = id => {
+    setContacts(contacts.filter(el => el.id !== id));
+  };
+
+  const filteredContacts = getFilteredContacts();
   return (
     <div>
-      <h1>Welcome to React!</h1>
+      <Section title="Phonebook">
+        <ContactForm onSubmit={formSubmitHandler} />
+      </Section>
+      <Section title="Contacts">
+        <Filter value={filter} onChange={changeFilter} />
+        <ContactList list={filteredContacts} onDeleteContact={deleteContact} />
+      </Section>
     </div>
   );
 }
-
-export default App;
